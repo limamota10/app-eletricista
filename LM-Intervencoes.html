@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LM Intervenções Elétricas</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    :root{
+      --bg:#f8fafc;--card:#ffffff;--text:#0f172a;--muted:#64748b;--line:#e2e8f0;--brand:#0F2C5C;--accent:#FFC72C;
+    }
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    .wrap{max-width:1200px;margin:0 auto;padding:16px}
+    .hero,.card{background:var(--card);border:1px solid var(--line);border-radius:20px}
+    .hero{padding:20px;margin-bottom:16px}.hero h1{margin:6px 0 4px;font-size:28px}.sub{color:var(--muted);font-size:14px}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}.stat{padding:14px;border:1px solid var(--line);border-radius:16px}
+    .stat .n{font-size:24px;font-weight:700}.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px}
+    .tab{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;cursor:pointer;font-weight:600}
+    .tab.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+    .grid{display:grid;gap:16px}.grid-2{grid-template-columns:1.1fr .9fr}.grid-3{grid-template-columns:repeat(3,1fr)}
+    .card{padding:16px}.title{font-size:18px;font-weight:700;margin:0 0 12px}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
+    input,select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:12px;font:inherit;background:#fff}
+    textarea{min-height:96px;resize:vertical} button{padding:12px 14px;border-radius:12px;border:0;cursor:pointer;font-weight:700}
+    .btn{background:var(--brand);color:#fff}.btn-ghost{background:#fff;border:1px solid var(--line);color:var(--text)} .btn-warn{background:var(--accent);color:#111827}
+    .btns{display:flex;gap:10px;flex-wrap:wrap}.badge{display:inline-block;padding:8px 10px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:12px;font-weight:700}
+    table{width:100%;border-collapse:collapse} th,td{padding:12px;border-bottom:1px solid var(--line);text-align:left;font-size:14px} th{color:var(--muted)}
+    .muted{color:var(--muted)} .box{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:12px}.mono{white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+    .click{cursor:pointer}.pill{padding:6px 10px;border-radius:999px;background:#f1f5f9;font-size:12px;font-weight:700}
+    .client-card{border:1px solid var(--line);border-radius:16px;padding:14px}.totals>div{display:flex;justify-content:space-between;margin:6px 0}
+    .login-container{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg)}
+    .login-card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:40px;max-width:400px;width:100%;box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+    .login-card h1{margin:0 0 6px;font-size:24px}.login-card .sub{margin-bottom:24px}
+    .login-card label{margin-top:12px}.login-card input{margin-bottom:4px}
+    .login-error{color:#dc2626;font-size:12px;margin-top:4px;margin-bottom:8px}
+    .login-btns{display:flex;gap:10px;margin-top:16px}.login-btns button{flex:1;padding:12px}
+    .admin-badge{background:#dc2626;color:#fff;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:700;margin-left:8px}
+    .user-info{display:flex;align-items:center;justify-content:space-between;padding:12px;background:#f1f5f9;border-radius:12px;margin-bottom:16px}
+    .user-profile{display:flex;align-items:center;gap:8px}
+    .logout-btn{padding:6px 12px;font-size:12px;background:#dc2626;color:#fff;border:0;border-radius:6px;cursor:pointer;font-weight:600}
+    @media (max-width: 900px){.stats,.tabs,.grid-2,.grid-3,.row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const euro = (v) => new Intl.NumberFormat('pt-PT',{style:'currency',currency:'EUR'}).format(Number(v||0));
+    const defaultClients=[
+      {id:'c1',nome:'Catarina',telefone:'+351 91X XXX XXX',email:'',nif:'',morada:'Carvalhais',observacoes:''},
+      {id:'c2',nome:'Thiago',telefone:'+351 91X XXX XXX',email:'',nif:'',morada:'Montemor-o-Velho',observacoes:'Painéis solares na moradia'}
+    ];
+    const defaultMaterials=[
+      {id:'m1',nome:'Tomada Schuko',unidade:'un',preco:3.2},
+      {id:'m2',nome:'Caixa aparelhagem',unidade:'un',preco:0.85},
+      {id:'m3',nome:'Cabo 3G2,5',unidade:'m',preco:1.45},
+      {id:'m4',nome:'Tubo VD 20',unidade:'m',preco:0.9},
+      {id:'m5',nome:'Disjuntor C16',unidade:'un',preco:8.9},
+      {id:'m6',nome:'Diferencial 63A 30mA Classe A',unidade:'un',preco:62}
+    ];
+    const defaultJobs=[
+      {id:'j1',clienteId:'c1',categoria:'Tomadas e interruptores',descricao:'Criação de 4 tomadas em circuito novo, com abertura de roços e fecho.',observacoes:'2 profissionais',inicio:'2026-03-25T09:00',fim:'2026-03-25T13:15',estado:'Concluído',maoDeObra:180,desconto:0,formaPagamento:'Pendente',materiais:[
+        {materialId:'m1',quantidade:4,precoUnitario:3.2},{materialId:'m2',quantidade:4,precoUnitario:0.85},{materialId:'m3',quantidade:12,precoUnitario:1.45},{materialId:'m4',quantidade:10,precoUnitario:0.9},{materialId:'m5',quantidade:1,precoUnitario:8.9}
+      ]]}
+    ];
+    const categories=['Avaria elétrica','Visita técnica','Tomadas e interruptores','Iluminação','Quadro elétrico','Wallbox / VE','Linha dedicada','Outros'];
+
+    function LoginScreen({ onLogin }){
+      const [email,setEmail]=React.useState('');
+      const [password,setPassword]=React.useState('');
+      const [error,setError]=React.useState('');
+      const [isSignup,setIsSignup]=React.useState(false);
+
+      const handleLogin=()=>{
+        if(!email || !password) { setError('Preencha email e senha'); return; }
+        const users = JSON.parse(localStorage.getItem('lm_users')||'[]');
+        const user = users.find(u=>u.email===email && u.password===password);
+        if(!user) { setError('Email ou senha incorretos'); return; }
+        localStorage.setItem('lm_current_user',JSON.stringify(user));
+        onLogin(user);
+      };
+
+      const handleSignup=()=>{
+        if(!email || !password) { setError('Preencha email e senha'); return; }
+        if(password.length < 4) { setError('Senha deve ter pelo menos 4 caracteres'); return; }
+        const users = JSON.parse(localStorage.getItem('lm_users')||'[]');
+        if(users.find(u=>u.email===email)) { setError('Email já registado'); return; }
+        const newUser = {id:'u'+Date.now(),email,password,role:'user',createdAt:new Date().toISOString()};
+        users.push(newUser);
+        localStorage.setItem('lm_users',JSON.stringify(users));
+        localStorage.setItem('lm_current_user',JSON.stringify(newUser));
+        onLogin(newUser);
+      };
+
+      return <div className="login-container">
+        <div className="login-card">
+          <h1>LM Intervenções</h1>
+          <div className="sub">{isSignup ? 'Criar nova conta' : 'Aceda à sua conta'}</div>
+          <label>Email</label>
+          <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="seu@email.com" />
+          <label style={{marginTop:12}}>Senha</label>
+          <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••" />
+          {error && <div className="login-error">{error}</div>}
+          <div className="login-btns">
+            <button className="btn" onClick={isSignup?handleSignup:handleLogin}>{isSignup?'Registar':'Entrar'}</button>
+          </div>
+          <div style={{marginTop:12,textAlign:'center'}}>
+            <button className="btn-ghost" style={{border:'0',background:'transparent',color:'var(--brand)',cursor:'pointer',padding:0}} onClick={()=>{setIsSignup(!isSignup);setError('');}}>
+              {isSignup?'Já tenho conta':'Criar conta nova'}
+            </button>
+          </div>
+        </div>
+      </div>;
+    }
+
+    function App(){
+      const [currentUser,setCurrentUser]=React.useState(null);
+      const [tab,setTab]=React.useState('intervencoes');
+      const [clients,setClients]=React.useState(()=>JSON.parse(localStorage.getItem('lm_clients')||JSON.stringify(defaultClients)));
+      const [materials,setMaterials]=React.useState(()=>JSON.parse(localStorage.getItem('lm_materials')||JSON.stringify(defaultMaterials)));
+      const [jobs,setJobs]=React.useState(()=>JSON.parse(localStorage.getItem('lm_jobs')||JSON.stringify(defaultJobs)));
+      const [search,setSearch]=React.useState('');
+      const [selectedJobId,setSelectedJobId]=React.useState(jobs[0]?.id||null);
+      const [running,setRunning]=React.useState(false);
+      const [newClient,setNewClient]=React.useState({nome:'',telefone:'',email:'',nif:'',morada:'',observacoes:''});
+      const [newMaterial,setNewMaterial]=React.useState({nome:'',unidade:'un',preco:''});
+      const [newJob,setNewJob]=React.useState({clienteId:clients[0]?.id||'',categoria:categories[0],descricao:'',observacoes:'',inicio:'',fim:'',estado:'Aguardar validação',maoDeObra:60,desconto:0,formaPagamento:'Pendente',materiais:[]});
+      const [materialToAdd,setMaterialToAdd]=React.useState({materialId:materials[0]?.id||'',quantidade:1,precoUnitario:materials[0]?.preco||0});
+
+      React.useEffect(()=>{
+        const user = JSON.parse(localStorage.getItem('lm_current_user')||'null');
+        if(user) setCurrentUser(user);
+      },[]);
+
+      React.useEffect(()=>{ localStorage.setItem('lm_clients',JSON.stringify(clients)); },[clients]);
+      React.useEffect(()=>{ localStorage.setItem('lm_materials',JSON.stringify(materials)); },[materials]);
+      React.useEffect(()=>{ localStorage.setItem('lm_jobs',JSON.stringify(jobs)); },[jobs]);
+
+      const logout=()=>{ localStorage.removeItem('lm_current_user'); setCurrentUser(null); };
+      const isAdmin = currentUser?.role === 'admin';
+
+      const calcMaterialsTotal=(job)=> (job?.materiais||[]).reduce((s,i)=>s+Number(i.quantidade||0)*Number(i.precoUnitario||0),0);
+      const getTotal=(job)=> Math.max(Number(job?.maoDeObra||0),60)+calcMaterialsTotal(job)-Number(job?.desconto||0);
+      const getDuration=(job)=>{
+        if(!job?.inicio||!job?.fim) return '-';
+        const ms = new Date(job.fim)-new Date(job.inicio); if(isNaN(ms)||ms<=0) return '-';
+        const h=Math.floor(ms/3600000), m=Math.floor((ms%3600000)/60000); return `${h}h ${String(m).padStart(2,'0')}m`;
+      };
+      const selectedJob = jobs.find(j=>j.id===selectedJobId) || jobs[0] || null;
+      const selectedClient = clients.find(c=>c.id===selectedJob?.clienteId);
+      const filteredJobs = jobs.filter(job=>{
+        const client=clients.find(c=>c.id===job.clienteId);
+        const q=search.toLowerCase().trim(); if(!q) return true;
+        return [job.categoria,job.descricao,client?.nome,client?.morada].join(' ').toLowerCase().includes(q);
+      });
+      const todayRevenue=jobs.reduce((s,j)=>s+getTotal(j),0), todayMaterials=jobs.reduce((s,j)=>s+calcMaterialsTotal(j),0);
+
+      const saveClient=()=>{ if(!newClient.nome||!newClient.telefone) return; setClients(prev=>[{...newClient,id:'c'+Date.now()},...prev]); setNewClient({nome:'',telefone:'',email:'',nif:'',morada:'',observacoes:''}); };
+      const saveMaterial=()=>{ if(!newMaterial.nome||!newMaterial.preco) return; setMaterials(prev=>[{...newMaterial,id:'m'+Date.now(),preco:Number(newMaterial.preco)},...prev]); setNewMaterial({nome:'',unidade:'un',preco:''}); };
+      const addMaterialToDraft=()=>{ if(!materialToAdd.materialId) return; setNewJob(prev=>({...prev,materiais:[...prev.materiais,{...materialToAdd,quantidade:Number(materialToAdd.quantidade),precoUnitario:Number(materialToAdd.precoUnitario)}]})); };
+      const saveJob=()=>{ if(!newJob.clienteId||!newJob.categoria) return; const job={...newJob,id:'j'+Date.now()}; setJobs(prev=>[job,...prev]); setSelectedJobId(job.id); setTab('intervencoes'); setNewJob({clienteId:clients[0]?.id||'',categoria:categories[0],descricao:'',observacoes:'',inicio:'',fim:'',estado:'Aguardar validação',maoDeObra:60,desconto:0,formaPagamento:'Pendente',materiais:[]}); };
+      const startNow=()=>{ setNewJob(prev=>({...prev,inicio:new Date().toISOString().slice(0,16),estado:'Em curso'})); setRunning(true); };
+      const stopNow=()=>{ setNewJob(prev=>({...prev,fim:new Date().toISOString().slice(0,16),estado:'Aguardar validação'})); setRunning(false); };
+
+      const buildMemoria=(job,client)=>{
+        const linhas = job.materiais.length ? job.materiais.map(item=>{ const mat=materials.find(m=>m.id===item.materialId); return `- ${item.quantidade} ${mat?.unidade||'un'} ${mat?.nome||'Material'} — ${euro(item.quantidade*item.precoUnitario)}`; }).join('\n') : '- Sem materiais registados';
+        return `MEMÓRIA DESCRITIVA\n\nN.º Intervenção: INT-${job.id}\nData: ${job.inicio ? new Date(job.inicio).toLocaleDateString('pt-PT') : '-'}\n\nCLIENTE\nNome: ${client?.nome||'-'}\nMorada: ${client?.morada||'-'}\nTelefone: ${client?.telefone||'-'}\nNIF: ${client?.nif||'-'}\n\nINTERVENÇÃO\nCategoria: ${job.categoria}\nHora de início: ${job.inicio ? new Date(job.inicio).toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'}) : '-'}\nHora de fim: ${job.fim ? new Date(job.fim).toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'}) : '-'}\nDuração: ${getDuration(job)}\nEstado: ${job.estado}\n\nDESCRIÇÃO DOS TRABALHOS\n${job.descricao||'-'}\n\nMATERIAIS APLICADOS\n${linhas}\n\nOBSERVAÇÕES\n${job.observacoes||'-'}\n\nRESUMO DE VALORES\nMão de obra: ${euro(job.maoDeObra)}\nMateriais: ${euro(calcMaterialsTotal(job))}\nDesconto: ${euro(job.desconto)}\nTotal final: ${euro(getTotal(job))}\n\nLeandro Mota\nEletricista Profissional – Figueira da Foz\n+351 964 320 732`; };
+      const buildRecibo=(job,client)=> `RECIBO SIMPLES / COMPROVATIVO\n\nN.º Documento: REC-${job.id}\nCliente: ${client?.nome||'-'}\nMorada: ${client?.morada||'-'}\nNIF: ${client?.nif||'-'}\nData: ${job.fim ? new Date(job.fim).toLocaleDateString('pt-PT') : new Date().toLocaleDateString('pt-PT')}\n\nServiço: ${job.categoria}\nMão de obra: ${euro(job.maoDeObra)}\nMateriais: ${euro(calcMaterialsTotal(job))}\nDesconto: ${euro(job.desconto)}\nTotal: ${euro(getTotal(job))}\nForma de pagamento: ${job.formaPagamento||'Pendente'}\n\nDocumento interno para registo da intervenção executada.`;
+
+      if(!currentUser) return <LoginScreen onLogin={setCurrentUser} />;
+
+      return <div className="wrap">
+        <div className="user-info">
+          <div className="user-profile">
+            <div><strong>{currentUser.email}</strong><span className={isAdmin?'admin-badge':'badge'} style={{background:isAdmin?'#dc2626':'#eef2ff',color:isAdmin?'#fff':'#3730a3'}}>{isAdmin?'Administrador':'Utilizador'}</span></div>
+          </div>
+          <button className="logout-btn" onClick={logout}>Sair</button>
+        </div>
+
+        <div className="hero">
+          <div className="sub">Web app por link · versão com autenticação</div>
+          <h1>LM Intervenções Elétricas</h1>
+          <div className="sub">Clientes, intervenções, materiais, memória descritiva e recibo simples.</div>
+          <div className="stats">
+            <div className="stat"><div className="sub">Clientes</div><div className="n">{clients.length}</div></div>
+            <div className="stat"><div className="sub">Intervenções</div><div className="n">{jobs.length}</div></div>
+            <div className="stat"><div className="sub">Materiais</div><div className="n">{materials.length}</div></div>
+            <div className="stat"><div className="sub">Total registado</div><div className="n" style={{fontSize:20}}>{euro(todayRevenue)}</div></div>
+          </div>
+        </div>
+
+        <div className="tabs">
+          {['intervencoes','novo','clientes','materiais',...(isAdmin?['gestao']:[])]
+            .map(k => <button key={k} className={'tab '+(tab===k?'active':'')} onClick={()=>setTab(k)}>{({intervencoes:'Intervenções',novo:'Novo serviço',clientes:'Clientes',materiais:'Materiais',gestao:'Gestão'})[k]}</button>)}
+        </div>
+
+        {tab==='intervencoes' && <div className="grid grid-2">
+          <div className="card">
+            <div className="title">Intervenções</div>
+            <input placeholder="Pesquisar cliente ou serviço" value={search} onChange={e=>setSearch(e.target.value)} style={{marginBottom:12}} />
+            <table><thead><tr><th>Cliente</th><th>Serviço</th><th>Estado</th><th>Total</th></tr></thead><tbody>
+              {filteredJobs.map(job=>{ const c=clients.find(x=>x.id===job.clienteId); return <tr key={job.id} className="click" onClick={()=>setSelectedJobId(job.id)}><td>{c?.nome||'-'}</td><td>{job.categoria}</td><td><span className="pill">{job.estado}</span></td><td>{euro(getTotal(job))}</td></tr>})}
+            </tbody></table>
+          </div>
+          <div className="card">
+            <div className="title">Detalhe da intervenção</div>
+            {selectedJob ? <>
+              <div style={{display:'flex',justifyContent:'space-between',gap:12,alignItems:'start'}}>
+                <div><div style={{fontSize:22,fontWeight:700}}>{selectedClient?.nome||'Cliente'}</div><div className="muted">{selectedClient?.morada||'-'}</div><div className="muted">{selectedClient?.telefone||'-'}</div></div>
+                <span className="badge">{selectedJob.estado}</span>
+              </div>
+              <hr style={{border:'0',borderTop:'1px solid var(--line)',margin:'14px 0'}} />
+              <div className="row" style={{fontSize:14}}>
+                <div><b>Categoria:</b> {selectedJob.categoria}</div><div><b>Duração:</b> {getDuration(selectedJob)}</div>
+                <div><b>Mão de obra:</b> {euro(Math.max(selectedJob.maoDeObra,60))}</div><div><b>Materiais:</b> {euro(calcMaterialsTotal(selectedJob))}</div>
+                <div><b>Desconto:</b> {euro(selectedJob.desconto)}</div><div><b>Total final:</b> {euro(getTotal(selectedJob))}</div>
+              </div>
+              <div style={{marginTop:12}}><label>Descrição</label><div className="box">{selectedJob.descricao||'Sem descrição.'}</div></div>
+              <div style={{marginTop:12}}><label>Materiais usados</label><div className="box">{selectedJob.materiais.length ? selectedJob.materiais.map((item,idx)=>{ const mat=materials.find(m=>m.id===item.materialId); return <div key={idx} style={{display:'flex',justifyContent:'space-between',padding:'4px 0'}}><span>{mat?.nome} · {item.quantidade} {mat?.unidade}</span><span>{euro(item.quantidade*item.precoUnitario)}</span></div>}) : 'Sem materiais registados.'}</div></div>
+              <div className="btns" style={{marginTop:12}}>
+                <button className="btn" onClick={()=>alert(buildMemoria(selectedJob,selectedClient))}>Ver memória descritiva</button>
+                <button className="btn-ghost" onClick={()=>alert(buildRecibo(selectedJob,selectedClient))}>Ver recibo simples</button>
+              </div>
+              <div className="row" style={{marginTop:12}}>
+                <div><label>Memória descritiva</label><div className="box mono">{buildMemoria(selectedJob,selectedClient)}</div></div>
+                <div><label>Recibo simples</label><div className="box mono">{buildRecibo(selectedJob,selectedClient)}</div></div>
+              </div>
+            </> : <div className="muted">Sem intervenção selecionada.</div>}
+          </div>
+        </div>}
+
+        {tab==='novo' && <div className="grid grid-2">
+          <div className="card">
+            <div className="title">Novo serviço</div>
+            <div className="row">
+              <div><label>Cliente</label><select value={newJob.clienteId} onChange={e=>setNewJob(p=>({...p,clienteId:e.target.value}))}>{clients.map(c=><option key={c.id} value={c.id}>{c.nome}</option>)}</select></div>
+              <div><label>Categoria</label><select value={newJob.categoria} onChange={e=>setNewJob(p=>({...p,categoria:e.target.value}))}>{categories.map(c=><option key={c}>{c}</option>)}</select></div>
+            </div>
+            <div className="btns" style={{margin:'12px 0'}}>
+              <button className="btn" onClick={startNow}>Iniciar serviço</button>
+              <button className="btn-ghost" onClick={stopNow}>Finalizar serviço</button>
+              <span className="badge">Aviso horário: Ativo</span>
+              {running && <span className="badge">Serviço em curso</span>}
+            </div>
+            <div className="row">
+              <div><label>Início</label><input type="datetime-local" value={newJob.inicio} onChange={e=>setNewJob(p=>({...p,inicio:e.target.value}))} /></div>
+              <div><label>Fim</label><input type="datetime-local" value={newJob.fim} onChange={e=>setNewJob(p=>({...p,fim:e.target.value}))} /></div>
+            </div>
+            <div style={{marginTop:12}}><label>Descrição dos trabalhos</label><textarea value={newJob.descricao} onChange={e=>setNewJob(p=>({...p,descricao:e.target.value}))} placeholder="Ex.: abertura de roços, passagem de tubagem, cablagem, aparelhagem e ensaios finais." /></div>
+            <div style={{marginTop:12}}><label>Observações técnicas</label><textarea value={newJob.observacoes} onChange={e=>setNewJob(p=>({...p,observacoes:e.target.value}))} placeholder="Ex.: cliente informado sobre proteção diferencial e estado da instalação existente." /></div>
+            <div className="row" style={{marginTop:12}}>
+              <div><label>Mão de obra (€)</label><input type="number" value={newJob.maoDeObra} onChange={e=>setNewJob(p=>({...p,maoDeObra:Number(e.target.value)}))} /></div>
+              <div><label>Desconto (€)</label><input type="number" value={newJob.desconto} onChange={e=>setNewJob(p=>({...p,desconto:Number(e.target.value)}))} /></div>
+            </div>
+            <div style={{marginTop:12}}><label>Forma de pagamento</label><select value={newJob.formaPagamento} onChange={e=>setNewJob(p=>({...p,formaPagamento:e.target.value}))}><option>Pendente</option><option>Numerário</option><option>MBWay</option><option>Transferência</option><option>Multibanco</option></select></div>
+            <div className="btns" style={{marginTop:12}}><button className="btn" onClick={saveJob}>Guardar intervenção</button></div>
+          </div>
+          <div className="card">
+            <div className="title">Materiais do serviço</div>
+            <div className="row">
+              <div><label>Material</label><select value={materialToAdd.materialId} onChange={e=>{ const mat=materials.find(m=>m.id===e.target.value); setMaterialToAdd({materialId:e.target.value,quantidade:1,precoUnitario:mat?.preco||0}); }}>{materials.map(m=><option key={m.id} value={m.id}>{m.nome}</option>)}</select></div>
+              <div><label>Quantidade</label><input type="number" value={materialToAdd.quantidade} onChange={e=>setMaterialToAdd(p=>({...p,quantidade:Number(e.target.value)}))} /></div>
+            </div>
+            <div style={{marginTop:12}}><label>Preço unitário</label><input type="number" value={materialToAdd.precoUnitario} onChange={e=>setMaterialToAdd(p=>({...p,precoUnitario:Number(e.target.value)}))} /></div>
+            <div className="btns" style={{marginTop:12}}><button className="btn-ghost" onClick={addMaterialToDraft}>Adicionar material</button></div>
+            <div className="box" style={{marginTop:12}}>
+              <div style={{fontWeight:700,marginBottom:8}}>Resumo do rascunho</div>
+              {(newJob.materiais.length ? newJob.materiais : []).map((item,idx)=>{ const mat=materials.find(m=>m.id===item.materialId); return <div key={idx} style={{display:'flex',justifyContent:'space-between',padding:'4px 0'}}><span>{mat?.nome} · {item.quantidade} {mat?.unidade}</span><span>{euro(item.quantidade*item.precoUnitario)}</span></div>})}
+              {!newJob.materiais.length && <div className="muted">Sem materiais adicionados.</div>}
+              <hr style={{border:'0',borderTop:'1px solid var(--line)',margin:'10px 0'}} />
+              <div className="totals">
+                <div><span>Mão de obra (mínimo 60€)</span><b>{euro(Math.max(newJob.maoDeObra,60))}</b></div>
+                <div><span>Materiais</span><b>{euro(calcMaterialsTotal(newJob))}</b></div>
+                <div><span>Desconto</span><b>- {euro(newJob.desconto)}</b></div>
+                <div><span>Total final</span><b>{euro(getTotal(newJob))}</b></div>
+              </div>
+            </div>
+          </div>
+        </div>}
+
+        {tab==='clientes' && <div className="grid grid-2">
+          <div className="card"><div className="title">Novo cliente</div>
+            <label>Nome</label><input value={newClient.nome} onChange={e=>setNewClient(p=>({...p,nome:e.target.value}))} />
+            <label style={{marginTop:10}}>Telefone</label><input value={newClient.telefone} onChange={e=>setNewClient(p=>({...p,telefone:e.target.value}))} />
+            <label style={{marginTop:10}}>Email</label><input value={newClient.email} onChange={e=>setNewClient(p=>({...p,email:e.target.value}))} />
+            <label style={{marginTop:10}}>NIF</label><input value={newClient.nif} onChange={e=>setNewClient(p=>({...p,nif:e.target.value}))} />
+            <label style={{marginTop:10}}>Morada</label><input value={newClient.morada} onChange={e=>setNewClient(p=>({...p,morada:e.target.value}))} />
+            <label style={{marginTop:10}}>Observações</label><textarea value={newClient.observacoes} onChange={e=>setNewClient(p=>({...p,observacoes:e.target.value}))} />
+            <div className="btns" style={{marginTop:12}}><button className="btn" onClick={saveClient}>Guardar cliente</button></div>
+          </div>
+          <div className="card"><div className="title">Base de clientes</div><div className="grid" style={{gridTemplateColumns:'1fr 1fr'}}>
+            {clients.map(client=>{ const total=jobs.filter(j=>j.clienteId===client.id).reduce((s,j)=>s+getTotal(j),0); return <div key={client.id} className="client-card"><div style={{fontWeight:700}}>{client.nome}</div><div className="muted">{client.morada}</div><div className="muted">{client.telefone}</div><div style={{display:'flex',justifyContent:'space-between',marginTop:10}}><span className="pill">{jobs.filter(j=>j.clienteId===client.id).length} serviços</span><b>{euro(total)}</b></div></div>})}
+          </div></div>
+        </div>}
+
+        {tab==='materiais' && <div className="grid grid-2">
+          <div className="card"><div className="title">Novo material</div>
+            <label>Nome do material</label><input value={newMaterial.nome} onChange={e=>setNewMaterial(p=>({...p,nome:e.target.value}))} />
+            <label style={{marginTop:10}}>Unidade</label><select value={newMaterial.unidade} onChange={e=>setNewMaterial(p=>({...p,unidade:e.target.value}))}><option value="un">Unidade</option><option value="m">Metro</option><option value="cx">Caixa</option><option value="rl">Rolo</option></select>
+            <label style={{marginTop:10}}>Preço unitário</label><input type="number" value={newMaterial.preco} onChange={e=>setNewMaterial(p=>({...p,preco:e.target.value}))} />
+            <div className="btns" style={{marginTop:12}}><button className="btn" onClick={saveMaterial}>Guardar material</button></div>
+          </div>
+          <div className="card"><div className="title">Catálogo de materiais</div>
+            <table><thead><tr><th>Material</th><th>Unidade</th><th>Preço</th></tr></thead><tbody>{materials.map(mat=><tr key={mat.id}><td>{mat.nome}</td><td>{mat.unidade}</td><td>{euro(mat.preco)}</td></tr>)}</tbody></table>
+          </div>
+        </div>}
+
+        {tab==='gestao' && isAdmin && <div className="grid grid-3">
+          <div className="card"><div className="title">Resumo financeiro</div><div className="totals"><div><span>Total registado</span><b>{euro(todayRevenue)}</b></div><div><span>Total de materiais</span><b>{euro(todayMaterials)}</b></div><div><span>Mão de obra acumulada</span><b>{euro(todayRevenue-todayMaterials)}</b></div></div></div>
+          <div className="card"><div className="title">Regras da versão 2</div><div className="muted">• Autenticação com email e senha<br/>• Roles: Utilizador e Admin<br/>• Utilizadores veem tudo<br/>• Admin tem acesso a Gestão<br/>• Dados guardados no localStorage</div></div>
+          <div className="card"><div className="title">Próximas evoluções</div><div className="muted">• Exportação PDF<br/>• Envio por WhatsApp<br/>• Upload de fotos<br/>• Backend com PHP/MySQL<br/>• Múltiplos utilizadores por equipa</div></div>
+        </div>}
+      </div>
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />)
+  </script>
+</body>
+</html>
