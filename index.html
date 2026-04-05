@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>LM Intervenções Elétricas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{
+font-family: Arial;
+background:#f3f4f6;
+margin:0;
+padding:40px;
+}
+
+.container{
+max-width:800px;
+margin:auto;
+background:white;
+padding:30px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+h1{
+margin-top:0;
+}
+
+input, textarea{
+width:100%;
+padding:10px;
+margin-top:5px;
+margin-bottom:15px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+button{
+background:#2563eb;
+color:white;
+border:none;
+padding:12px 20px;
+border-radius:8px;
+cursor:pointer;
+}
+
+.result{
+margin-top:20px;
+background:#f9fafb;
+padding:15px;
+border-radius:6px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Registo de Serviço</h1>
+
+<label>Cliente</label>
+<input id="cliente">
+
+<label>Morada</label>
+<input id="morada">
+
+<label>Descrição do trabalho</label>
+<textarea id="descricao"></textarea>
+
+<label>Mão de obra (€)</label>
+<input id="mao" type="number">
+
+<label>Materiais (€)</label>
+<input id="mat" type="number">
+
+<button onclick="gerar()">Gerar Memória</button>
+
+<div class="result" id="resultado"></div>
+
+</div>
+
+<script>
+
+function gerar(){
+
+let cliente = document.getElementById("cliente").value
+let morada = document.getElementById("morada").value
+let desc = document.getElementById("descricao").value
+let mao = Number(document.getElementById("mao").value)
+let mat = Number(document.getElementById("mat").value)
+
+let total = mao + mat
+
+document.getElementById("resultado").innerText = 
+`MEMÓRIA DESCRITIVA
+
+Cliente: ${cliente}
+Morada: ${morada}
+
+Trabalho executado:
+${desc}
+
+Mão de obra: ${mao} €
+Materiais: ${mat} €
+
+Total: ${total} €
+
+Eletricista
+Leandro Mota
+`
+}
+
+</script>
+
+</body>
+</html>
